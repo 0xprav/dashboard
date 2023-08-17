@@ -1,2 +1,2 @@
 streamlit
-bittensor
+git+https://github.com/opentensor/bittensor.git
