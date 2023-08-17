@@ -1,22 +1,37 @@
-import bittensor as bt
+import asyncio
+# import bittensor as bt
 import streamlit as st
 from datetime import datetime
 
+# Ensure we're using a new event loop for the main thread
+asyncio.set_event_loop(asyncio.new_event_loop())
+
 neurons = []
 
-# Function to refresh the neuron data
-def refresh_data():
+def initialize_bittensor():
+    global bt
+    import bittensor as bt
+
+
+# Convert this function to asynchronous
+async def refresh_data_async():
     global neurons
-    mt = bt.metagraph(netuid=1)
+    initialize_bittensor()
+    mt = bt.metagraph(netuid=1)  # Assuming this is an async call
     neurons = mt.neurons
+
+# Synchronous wrapper for the async function
+def refresh_data():
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(refresh_data_async())
 
 # Streamlit app
 def main():
     refresh_data()
-    
+
     # Create a unique key for the text input to track changes
     input_key = "filter_text_input"
-    
+
     # Automatically refresh data when the input changes
     filter_text = st.text_input("coldkey:", value="", key=input_key)
 
