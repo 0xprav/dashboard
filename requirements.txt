@@ -1,3 +1,2 @@
 streamlit
-streamlit-toggle-switch
 git+https://github.com/opentensor/bittensor.git

@@ -2,7 +2,6 @@ import asyncio
 import requests
 import streamlit as st
 from datetime import datetime
-import  streamlit_toggle as tog
 
 asyncio.set_event_loop(asyncio.new_event_loop())
 
@@ -33,7 +32,6 @@ def main():
     refresh_data()
     # Create a toggle button widget
     # Display the selected value
-    st.write("Selected Value:", selected_value)
 
     # Create a unique key for the text input to track changes
     input_key = "filter_text_input"
@@ -46,11 +44,10 @@ def main():
     # Initial data load
     stake = sum(neuron.stake for neuron in neurons if filter_text in neuron.coldkey)
     emission = round(sum(neuron.emission for neuron in neurons if filter_text in neuron.coldkey) * 3, 3)
-
-    st.write("Hourly τ:", emission)
-    st.write("Hourly $:", emission*taoprice)
-    st.write("Total Stake:", stake)
-    st.write("Total Stake $:", stake*taoprice)
+    hourlyemission = round(float(emission*taoprice),2)
+    cashstake = round(float(stake*taoprice),2)
+    st.write("Hourly τ:", emission, "hourly $:", hourlyemission)
+    st.write("Total Stake:", stake, "total $ stake:",cashstake)
     st.write("Current τ price:", taoprice)
     st.markdown(f'*last updated:* {datetime.now().strftime("%I:%M %p %m/%d/%y ")}')
 
