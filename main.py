@@ -1,9 +1,9 @@
 import asyncio
-# import bittensor as bt
+import requests
 import streamlit as st
 from datetime import datetime
+import  streamlit_toggle as tog
 
-# Ensure we're using a new event loop for the main thread
 asyncio.set_event_loop(asyncio.new_event_loop())
 
 neurons = []
@@ -16,6 +16,9 @@ def initialize_bittensor():
 # Convert this function to asynchronous
 async def refresh_data_async():
     global neurons
+    global taoprice
+    response = requests.get("https://api.coingecko.com/api/v3/coins/bittensor/market_chart?vs_currency=USD&days=1&interval=daily")
+    taoprice = round(response.json()['prices'][-1][-1],2)
     initialize_bittensor()
     mt = bt.metagraph(netuid=1)  # Assuming this is an async call
     neurons = mt.neurons
@@ -28,6 +31,9 @@ def refresh_data():
 # Streamlit app
 def main():
     refresh_data()
+    # Create a toggle button widget
+    # Display the selected value
+    st.write("Selected Value:", selected_value)
 
     # Create a unique key for the text input to track changes
     input_key = "filter_text_input"
@@ -42,7 +48,10 @@ def main():
     emission = round(sum(neuron.emission for neuron in neurons if filter_text in neuron.coldkey) * 3, 3)
 
     st.write("Hourly τ:", emission)
+    st.write("Hourly $:", emission*taoprice)
     st.write("Total Stake:", stake)
+    st.write("Total Stake $:", stake*taoprice)
+    st.write("Current τ price:", taoprice)
     st.markdown(f'*last updated:* {datetime.now().strftime("%I:%M %p %m/%d/%y ")}')
 
     # Automatically refresh data using the text input's unique key
