@@ -27,35 +27,82 @@ def refresh_data():
     loop = asyncio.get_event_loop()
     loop.run_until_complete(refresh_data_async())
 
-# Streamlit app
-def main():
-    refresh_data()
-    # Create a toggle button widget
-    # Display the selected value
+def generatedata(filter_text):
 
-    # Create a unique key for the text input to track changes
-    input_key = "filter_text_input"
-
-    # Automatically refresh data when the input changes
-    filter_text = st.text_input("coldkey:", value="", key=input_key)
-
-    st.title(f"Miners up : {sum(1 for neuron in neurons if filter_text in neuron.coldkey)}")
-
-    # Initial data load
     stake = sum(neuron.stake for neuron in neurons if filter_text in neuron.coldkey)
     emission = round(sum(neuron.emission for neuron in neurons if filter_text in neuron.coldkey) * 3, 3)
     hourlyemission = round(float(emission*taoprice),2)
     cashstake = round(float(stake*taoprice),2)
-    st.write("Hourly τ:", emission, "hourly $:", hourlyemission)
-    st.write("Total Stake:", stake, "total $ stake:",cashstake)
-    st.write("Current τ price:", taoprice)
-    st.markdown(f'*last updated:* {datetime.now().strftime("%I:%M %p %m/%d/%y ")}')
+    return stake, emission, hourlyemission, cashstake
 
-    # Automatically refresh data using the text input's unique key
-    if st.session_state[input_key] != filter_text:
-        refresh_data()
-        st.session_state[input_key] = filter_text
-        st.write("Data automatically refreshed.")
+
+def drawpage():
+    st.title(f"Miner Data")
+
+    unique_coldkeys = set(neuron.coldkey for neuron in neurons)
+
+    neuron_dict = {coldkey: [neuron for neuron in neurons if neuron.coldkey == coldkey] for coldkey in unique_coldkeys}
+    total_emissions = {key: sum(neuron.emission for neuron in neuron_list)*3 for key, neuron_list in neuron_dict.items()}
+
+# Sort the neuron_dict items by total emission in descending order
+    sorted_items = sorted(neuron_dict.items(), key=lambda x: total_emissions[x[0]], reverse=True)
+
+    for key, neuron_list in sorted_items:
+        # Count of unique uids
+        uid_count = len(set(neuron.uid for neuron in neuron_list))
+        
+        # Max, Min, and Average Emission
+        emissions = [neuron.emission for neuron in neuron_list]
+        max_emission = max(emissions)
+        min_emission = min(emissions)
+        avg_emission = sum(emissions) / len(emissions)
+        
+        # Total stake
+        total_stake = sum(neuron.stake for neuron in neuron_list)
+        
+        st.write(f"Coldkey: {key}")
+        st.write(f"hourly for Coldkey: {total_emissions[key]}")
+        st.write(f"Total hourly earnings: {total_emissions[key] *taoprice}")
+        st.write(f"Unique UIDs Count: {uid_count}")
+        st.write(f"Max Emission: {max_emission}")
+        st.write(f"Min Emission: {min_emission}")
+        st.write(f"Average Emission: {avg_emission}")
+        st.write(f"Total Stake: {total_stake}")
+        st.write("-" * 50)  # A line separator for better readability
+
+
+    # st.write("Hourly τ:", emission, "hourly $:", hourlyemission)
+    # st.write("Total Stake:", stake, "total $ stake:",cashstake)
+    # st.write("Current τ price:", taoprice)
+    # st.markdown(f'*last updated:* {datetime.now().strftime("%I:%M %p %m/%d/%y ")}')
+
+    st.title(f"")
+    #need list of top wallets
+    coldkeys = neurons.coldkey
+    st.write(coldkeys)
+
+    # need data vis stuff
+
+# Streamlit app
+def main():
+    refresh_data()
+    # input_key = "filter_text_input"
+    # filter_text = st.text_input("coldkey:", value="", key=input_key)
+    # stake, emission, hourlyemission, cashstake= generatedata(filter_text)
+
+    drawpage()
+
+    # drawpage(filter_text,stake,emission,hourlyemission,cashstake)
+
+    # if st.session_state[input_key] != filter_text:
+    #     refresh_data()
+    #     st.session_state[input_key] = filter_text
+    #     st.write("Data automatically refreshed.")
+
+
+
+
+
 
 if __name__ == "__main__":
     main()

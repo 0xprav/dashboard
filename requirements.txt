@@ -1,2 +1,4 @@
 streamlit
+numpy
+plotly
 git+https://github.com/opentensor/bittensor.git
