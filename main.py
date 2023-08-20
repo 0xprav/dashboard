@@ -76,10 +76,7 @@ def drawpage():
     # st.write("Current τ price:", taoprice)
     # st.markdown(f'*last updated:* {datetime.now().strftime("%I:%M %p %m/%d/%y ")}')
 
-    st.title(f"")
-    #need list of top wallets
-    coldkeys = neurons.coldkey
-    st.write(coldkeys)
+
 
     # need data vis stuff
 
